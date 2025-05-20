@@ -61,8 +61,6 @@ namespace cms_api.Controllers
                     { "docTime", DateTime.Now.toTimeStringFromDate() },
                     { "isActive", value.isActive },
                     { "status", value.isActive ? "A" : "N" },
-
-                    { "app", value.app },
                 };
                 col.InsertOne(doc);
 
@@ -129,7 +127,6 @@ namespace cms_api.Controllers
                 if (!string.IsNullOrEmpty(value.imageUrl)) { doc["imageUrl"] = value.imageUrl; }
                 if (!string.IsNullOrEmpty(value.action)) { doc["action"] = value.action; }
                 if (!string.IsNullOrEmpty(value.note)) { doc["note"] = value.note; }
-                if (!string.IsNullOrEmpty(value.app)) { doc["app"] = value.app; }
 
                 doc["mainPage"] = value.mainPage;
                 doc["contactPage"] = value.contactPage;
