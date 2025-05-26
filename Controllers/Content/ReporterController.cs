@@ -128,46 +128,47 @@ namespace cms_api.Controllers
             try
             {
                 var col = new Database().MongoClient<Suggestion>( "reporter");
-                var filter = (Builders<Suggestion>.Filter.Ne("status", "D") & value.filterOrganization<Suggestion>());
+                var filter = Builders<Suggestion>.Filter.Ne("status", "D");
 
                 if (!string.IsNullOrEmpty(value.keySearch))
                 {
                     filter = (filter & Builders<Suggestion>.Filter.Regex("title", new BsonRegularExpression(string.Format(".*{0}.*", value.keySearch), "i"))) | (filter & Builders<Suggestion>.Filter.Regex("description", new BsonRegularExpression(string.Format(".*{0}.*", value.keySearch), "i")));
 
-                    if (value.permission != "all")
-                        filter &= value.permission.filterPermission<Suggestion>("category");
+                    //if (value.permission != "all")
+                    //    filter &= value.permission.filterPermission<Suggestion>("category");
 
                 }
                 else
                 {
                     if (!string.IsNullOrEmpty(value.category))
                         filter &= Builders<Suggestion>.Filter.Eq("category", value.category);
-                    else
-                        if (value.permission != "all")
-                            filter &= value.permission.filterPermission<Suggestion>("category");
+                    //else
+                    //    if (value.permission != "all")
+                    //        filter &= value.permission.filterPermission<Suggestion>("category");
 
                     if (!string.IsNullOrEmpty(value.code)) { filter &= Builders<Suggestion>.Filter.Eq("code", value.code); }
-                    if (!string.IsNullOrEmpty(value.status)) { filter &= Builders<Suggestion>.Filter.Eq("status", value.status); }
-                    if (!string.IsNullOrEmpty(value.createBy)) { filter = filter & Builders<Suggestion>.Filter.Eq("createBy", value.createBy); }
-                    if (!string.IsNullOrEmpty(value.title)) { filter &= Builders<Suggestion>.Filter.Regex("title", new BsonRegularExpression(string.Format(".*{0}.*", value.title), "i")); }
-                    if (!string.IsNullOrEmpty(value.description)) { filter &= Builders<Suggestion>.Filter.Regex("description", new BsonRegularExpression(string.Format(".*{0}.*", value.description), "i")); }
-                    if (!string.IsNullOrEmpty(value.language)) { filter = filter & Builders<Suggestion>.Filter.Regex("language", value.language); }
-                    if (!string.IsNullOrEmpty(value.firstName)) { filter &= Builders<Suggestion>.Filter.Regex("firstName", new BsonRegularExpression(string.Format(".*{0}.*", value.firstName), "i")); }
-                    if (!string.IsNullOrEmpty(value.lastName)) { filter &= Builders<Suggestion>.Filter.Regex("lastName", new BsonRegularExpression(string.Format(".*{0}.*", value.lastName), "i")); }
+                    //if (!string.IsNullOrEmpty(value.status)) { filter &= Builders<Suggestion>.Filter.Eq("status", value.status); }
+                    //if (!string.IsNullOrEmpty(value.createBy)) { filter = filter & Builders<Suggestion>.Filter.Eq("createBy", value.createBy); }
+                    //if (!string.IsNullOrEmpty(value.title)) { filter &= Builders<Suggestion>.Filter.Regex("title", new BsonRegularExpression(string.Format(".*{0}.*", value.title), "i")); }
+                    //if (!string.IsNullOrEmpty(value.description)) { filter &= Builders<Suggestion>.Filter.Regex("description", new BsonRegularExpression(string.Format(".*{0}.*", value.description), "i")); }
+                    //if (!string.IsNullOrEmpty(value.language)) { filter = filter & Builders<Suggestion>.Filter.Regex("language", value.language); }
+                    //if (!string.IsNullOrEmpty(value.firstName)) { filter &= Builders<Suggestion>.Filter.Regex("firstName", new BsonRegularExpression(string.Format(".*{0}.*", value.firstName), "i")); }
+                    //if (!string.IsNullOrEmpty(value.lastName)) { filter &= Builders<Suggestion>.Filter.Regex("lastName", new BsonRegularExpression(string.Format(".*{0}.*", value.lastName), "i")); }
                     if (!string.IsNullOrEmpty(value.sequence)) { int sequence = Int32.Parse(value.sequence); filter = filter & Builders<Suggestion>.Filter.Eq("sequence", sequence); }
 
-                    var ds = value.startDate.toDateFromString().toBetweenDate();
-                    var de = value.endDate.toDateFromString().toBetweenDate();
-                    if (value.startDate != "Invalid date" && value.endDate != "Invalid date" && !string.IsNullOrEmpty(value.startDate) && !string.IsNullOrEmpty(value.endDate)) { filter = filter & Builders<Suggestion>.Filter.Gt("docDate", ds.start) & Builders<Suggestion>.Filter.Lt("docDate", de.end); }
-                    else if (value.startDate != "Invalid date" && !string.IsNullOrEmpty(value.startDate)) { filter = filter & Builders<Suggestion>.Filter.Gt("docDate", ds.start) & Builders<Suggestion>.Filter.Lt("docDate", ds.end); }
-                    else if (value.endDate != "Invalid date" && !string.IsNullOrEmpty(value.endDate)) { filter = filter & Builders<Suggestion>.Filter.Gt("docDate", de.start) & Builders<Suggestion>.Filter.Lt("docDate", de.end); }
+                    //var ds = value.startDate.toDateFromString().toBetweenDate();
+                    //var de = value.endDate.toDateFromString().toBetweenDate();
+                    //if (value.startDate != "Invalid date" && value.endDate != "Invalid date" && !string.IsNullOrEmpty(value.startDate) && !string.IsNullOrEmpty(value.endDate)) { filter = filter & Builders<Suggestion>.Filter.Gt("docDate", ds.start) & Builders<Suggestion>.Filter.Lt("docDate", de.end); }
+                    //else if (value.startDate != "Invalid date" && !string.IsNullOrEmpty(value.startDate)) { filter = filter & Builders<Suggestion>.Filter.Gt("docDate", ds.start) & Builders<Suggestion>.Filter.Lt("docDate", ds.end); }
+                    //else if (value.endDate != "Invalid date" && !string.IsNullOrEmpty(value.endDate)) { filter = filter & Builders<Suggestion>.Filter.Gt("docDate", de.start) & Builders<Suggestion>.Filter.Lt("docDate", de.end); }
                     
                 }
 
                 //var docs = col.Find(filter).SortByDescending(o => o.docDate).Skip(value.skip).Limit(value.limit).Project(c => new { c.code, c.title, c.titleEN, c.language, c.status, c.category, c.description, c.descriptionEN, c.latitude, c.longitude, c.createBy, c.imageUrlCreateBy, c.createDate, c.isActive, c.updateDate, c.updateBy, c.status2 }).ToList();
 
-                List<Suggestion> docs = col.Aggregate().Match(filter).SortByDescending(o => o.docDate).ThenByDescending(o => o.updateTime).Skip(value.skip).Limit(value.limit)
+                var docs = col.Aggregate().Match(filter).SortByDescending(o => o.docDate).ThenByDescending(o => o.updateTime).Skip(value.skip).Limit(value.limit)
                                      .Lookup("reporterCategory", "category", "code", "categoryList")
+                                     .Lookup("reporterGallery", "code", "reference", "gallery")
                                      .As<Suggestion>()
                                      .ToList();
 
@@ -192,27 +193,22 @@ namespace cms_api.Controllers
                 var filter = Builders<BsonDocument>.Filter.Eq("code", value.code);
                 doc = col.Find(filter).FirstOrDefault();
                 var model = BsonSerializer.Deserialize<object>(doc);
-                if (!string.IsNullOrEmpty(value.title)) { doc["title"] = value.title; }
-                if (!string.IsNullOrEmpty(value.status)) { doc["status"] = value.status; }
-                if (!string.IsNullOrEmpty(value.category)) { doc["category"] = value.category; }
-                if (!string.IsNullOrEmpty(value.language)) { doc["language"] = value.language; }
-                if (!string.IsNullOrEmpty(value.latitude)) { doc["latitude"] = value.latitude; }
-                if (!string.IsNullOrEmpty(value.longitude)) { doc["longitude"] = value.longitude; }
-                if (!string.IsNullOrEmpty(value.description)) { doc["description"] = value.description; }
-                if (!string.IsNullOrEmpty(value.updateBy)) { doc["updateBy"] = value.updateBy; }
-                if (!string.IsNullOrEmpty(value.firstName)) { doc["firstName"] = value.firstName; }
-                if (!string.IsNullOrEmpty(value.lastName)) { doc["lastName"] = value.lastName; }
+                //if (!string.IsNullOrEmpty(value.title)) { doc["title"] = value.title; }
+                //if (!string.IsNullOrEmpty(value.status)) { doc["status"] = value.status; }
+                //if (!string.IsNullOrEmpty(value.category)) { doc["category"] = value.category; }
+                //if (!string.IsNullOrEmpty(value.language)) { doc["language"] = value.language; }
+                //if (!string.IsNullOrEmpty(value.latitude)) { doc["latitude"] = value.latitude; }
+                //if (!string.IsNullOrEmpty(value.longitude)) { doc["longitude"] = value.longitude; }
+                //if (!string.IsNullOrEmpty(value.description)) { doc["description"] = value.description; }
+                //if (!string.IsNullOrEmpty(value.updateBy)) { doc["updateBy"] = value.updateBy; }
+                //if (!string.IsNullOrEmpty(value.firstName)) { doc["firstName"] = value.firstName; }
+                //if (!string.IsNullOrEmpty(value.lastName)) { doc["lastName"] = value.lastName; }
 
-                doc["fileUrl"] = value.fileUrl;
-                doc["linkUrl"] = value.linkUrl;
-                doc["textButton"] = value.textButton;
                 doc["updateDate"] = DateTime.Now.toStringFromDate();
                 doc["updateTime"] = DateTime.Now.toTimeStringFromDate();
                 doc["isActive"] = value.isActive;
-                doc["isHighlight"] = value.isHighlight;
+                doc["reportStatus"] = value.reportStatus;
                 doc["status"] = value.isActive ? "A" : "N";
-                doc["status2"] = value.status2;
-                doc["isPublic"] = value.isPublic;
 
                 col.ReplaceOne(filter, doc);
 
@@ -224,19 +220,17 @@ namespace cms_api.Controllers
                 docHistory = new BsonDocument
                     {
                         { "code", "".toCode() },
-                        { "category", value.category },
                         { "reference", value.code },
+                        { "reportStatus", value.reportStatus},
+                        { "title", value.reportTitle},
+                        { "description", value.reportDescription},
+                        { "officer", value.officer},
                         { "imageUrlCreateBy", value.imageUrlCreateBy },
                         { "createBy", value.createBy },
                         { "createDate", DateTime.Now.toStringFromDate() },
                         { "createTime", DateTime.Now.toTimeStringFromDate() },
-                        { "updateBy", value.updateBy },
-                        { "updateDate", DateTime.Now.toStringFromDate() },
-                        { "updateTime", DateTime.Now.toTimeStringFromDate() },
-                        { "docDate", DateTime.Now.Date.AddHours(7) },
-                        { "docTime", DateTime.Now.toTimeStringFromDate() },
                         { "isActive", true },
-                        { "status", value.status2 }
+                        { "status", "A" }
                     };
                 colHistory.InsertOne(docHistory);
 
@@ -269,31 +263,7 @@ namespace cms_api.Controllers
 
                 }
 
-                //BEGIN :history >>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-                var docHistory = new BsonDocument();
-                var colHistory = new Database().MongoClient("reporterHistory");
-
-                docHistory = new BsonDocument
-                    {
-                        { "code", "".toCode() },
-                        { "category", value.category },
-                        { "reference", value.code },
-                        { "imageUrlCreateBy", value.imageUrlCreateBy },
-                        { "createBy", value.createBy },
-                        { "createDate", DateTime.Now.toStringFromDate() },
-                        { "createTime", DateTime.Now.toTimeStringFromDate() },
-                        { "updateBy", value.updateBy },
-                        { "updateDate", DateTime.Now.toStringFromDate() },
-                        { "updateTime", DateTime.Now.toTimeStringFromDate() },
-                        { "docDate", DateTime.Now.Date.AddHours(7) },
-                        { "docTime", DateTime.Now.toTimeStringFromDate() },
-                        { "isActive", true },
-                        { "status", "delete" }
-                    };
-                colHistory.InsertOne(docHistory);
-
-                //END :history <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                
 
                 return new Response { status = "S", message = $"code: {value.code} is delete" };
             }
@@ -390,7 +360,7 @@ namespace cms_api.Controllers
                 {
                     { "code", value.code },
                     { "sequence", value.sequence },
-                    { "language", value.language },
+                    //{ "language", value.language },
                     { "title", value.title },
                     { "imageUrl", value.imageUrl },
                     { "createBy", value.updateBy },
@@ -453,7 +423,7 @@ namespace cms_api.Controllers
                     
                 }
 
-                var docs = col.Find(filter).SortByDescending(o => o.docDate).ThenByDescending(o => o.updateTime).Skip(value.skip).Limit(value.limit).Project(c => new { c.code, c.title, c.language, c.imageUrl, c.createBy, c.createDate, c.isActive, c.updateBy, c.updateDate, c.sequence }).ToList();
+                var docs = col.Find(filter).SortByDescending(o => o.docDate).ThenByDescending(o => o.updateTime).Skip(value.skip).Limit(value.limit).Project(c => new {c.code, c.title, c.language, c.imageUrl, c.createBy, c.createDate, c.isActive, c.updateBy, c.updateDate, c.sequence }).ToList();
 
                 return new Response { status = "S", message = "success", jsonData = docs.ToJson(), objectData = docs, totalData = col.Find(filter).ToList().Count() };
             }

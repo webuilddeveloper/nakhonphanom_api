@@ -16,6 +16,12 @@ namespace cms_api.Models
             firstName = "";
             lastName = "";
             gallery = new List<Gallery>();
+
+            reportStatus = "";
+            reportTitle = "";
+            reportDescription = "";
+            officer = "";
+
         }
 
         public string imageUrl { get; set; }
@@ -27,7 +33,14 @@ namespace cms_api.Models
         public int view { get; set; }
         public string firstName { get; set; }
         public string lastName { get; set; }
+        public string reportTitle { get; set; }
+        public string reportDescription { get; set; }
+        public string officer { get; set; }
 
         public List<Gallery> gallery { get; set; }
+
+        public string reportStatus { get; set; }
+
+        public List<ReportHistory> reportList { get; set; }
     }
 }
